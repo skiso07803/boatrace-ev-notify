@@ -1,0 +1,23 @@
+name: live-ev-loop
+
+on:
+  schedule:
+    - cron: "0 1 * * *"
+    - cron: "30 6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m src.live_loop
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LEAD_MIN: "8"
+          MAX_HOURS: "5.5"
