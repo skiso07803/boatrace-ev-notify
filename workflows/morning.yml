@@ -1,0 +1,22 @@
+name: morning-ev-report
+
+on:
+  schedule:
+    # JST 8:00 = UTC 23:00 (前日)。Actionsのcronは数分〜遅延することがあるため
+    # 22:45 UTC に設定して余裕を持たせる
+    - cron: "45 22 * * *"
+  workflow_dispatch: {}   # 手動実行(テスト用)
+
+jobs:
+  morning:
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m src.morning_batch
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}

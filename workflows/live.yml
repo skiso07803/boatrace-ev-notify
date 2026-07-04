@@ -1,0 +1,25 @@
+name: live-ev-loop
+
+on:
+  schedule:
+    # 午前ジョブ: JST 10:00 起動 (UTC 1:00) → 5.5h稼働で ~15:30 までカバー
+    - cron: "0 1 * * *"
+    # 午後ジョブ: JST 15:30 起動 (UTC 6:30) → 5.5h稼働で ~21:00 までカバー
+    - cron: "30 6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355   # 5.9h (ジョブ上限6hの手前)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: python -m src.live_loop
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          LEAD_MIN: "8"
+          MAX_HOURS: "5.5"
